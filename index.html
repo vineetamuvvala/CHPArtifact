@@ -1,0 +1,486 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Pre-Diligence Assessment</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Source+Serif+4:wght@600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #f6f5f1;
+    --surface: #ffffff;
+    --surface-2: #f0eee8;
+    --border: #e2dfd6;
+    --text: #1d2321;
+    --muted: #66706c;
+    --accent: #1f4d3f;
+    --accent-soft: #e3ece8;
+    --good: #2e7d4f;
+    --warn: #b7791f;
+    --bad: #b23b3b;
+    --shadow: 0 1px 2px rgba(0,0,0,.04), 0 4px 16px rgba(0,0,0,.04);
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #121614; --surface: #1a201d; --surface-2: #222a26; --border: #2e3833;
+      --text: #e7ece9; --muted: #95a29c; --accent: #7cc3a6; --accent-soft: #1f3129;
+      --good: #6cc896; --warn: #e0b057; --bad: #ec7c7c; --shadow: none;
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #121614; --surface: #1a201d; --surface-2: #222a26; --border: #2e3833;
+    --text: #e7ece9; --muted: #95a29c; --accent: #7cc3a6; --accent-soft: #1f3129;
+    --good: #6cc896; --warn: #e0b057; --bad: #ec7c7c; --shadow: none;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; background: var(--bg); color: var(--text);
+    font: 15px/1.5 Inter, system-ui, -apple-system, sans-serif;
+  }
+  header {
+    border-bottom: 1px solid var(--border); background: var(--surface);
+  }
+  .wrap { max-width: 1180px; margin: 0 auto; padding: 0 16px; }
+  .head-inner { display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 20px 16px; }
+  .eyebrow { font-size: 12px; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); margin: 0 0 4px; }
+  h1 { font-family: "Source Serif 4", Georgia, serif; font-size: 26px; margin: 0; font-weight: 600; }
+  .head-actions { display: flex; gap: 8px; flex-wrap: wrap; }
+  button {
+    font: inherit; font-size: 14px; border-radius: 8px; padding: 8px 14px; cursor: pointer;
+    border: 1px solid var(--border); background: var(--surface); color: var(--text);
+  }
+  button:hover { background: var(--surface-2); }
+  button.primary { background: var(--accent); color: var(--surface); border-color: var(--accent); }
+  button.primary:hover { filter: brightness(1.08); }
+
+  .layout { display: grid; grid-template-columns: minmax(0, 1fr) 360px; gap: 24px; padding: 24px 16px 64px; }
+  @media (max-width: 920px) { .layout { grid-template-columns: 1fr; } .results { position: static !important; } }
+
+  .card { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 22px; margin-bottom: 20px; box-shadow: var(--shadow); }
+  .card h2 { font-size: 17px; margin: 0 0 2px; display: flex; align-items: center; gap: 10px; }
+  .step { display: inline-grid; place-items: center; width: 24px; height: 24px; border-radius: 50%; background: var(--accent-soft); color: var(--accent); font-size: 12px; font-weight: 700; }
+  .card .sub { color: var(--muted); font-size: 13px; margin: 0 0 18px; }
+
+  .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 14px 16px; }
+  label.field { display: flex; flex-direction: column; gap: 6px; font-size: 13px; font-weight: 500; }
+  label.field .hint { font-weight: 400; color: var(--muted); font-size: 12px; }
+  input[type=text], input[type=number], select, textarea {
+    font: inherit; font-size: 14px; padding: 9px 11px; border-radius: 8px;
+    border: 1px solid var(--border); background: var(--bg); color: var(--text); width: 100%;
+  }
+  input:focus, select:focus, textarea:focus { outline: 2px solid var(--accent); outline-offset: -1px; }
+  textarea { min-height: 80px; resize: vertical; }
+
+  .rating { display: grid; grid-template-columns: 1fr auto; gap: 6px 16px; align-items: center; padding: 14px 0; border-top: 1px solid var(--border); }
+  .rating:first-of-type { border-top: 0; padding-top: 0; }
+  .rating .q { font-weight: 600; font-size: 14px; }
+  .rating .d { color: var(--muted); font-size: 12.5px; grid-column: 1; }
+  .scale { display: flex; gap: 4px; grid-row: 1 / span 2; grid-column: 2; }
+  .scale input { position: absolute; opacity: 0; pointer-events: none; }
+  .scale label {
+    width: 36px; height: 36px; display: grid; place-items: center; border-radius: 8px; cursor: pointer;
+    border: 1px solid var(--border); font-weight: 600; font-size: 14px; color: var(--muted); background: var(--bg);
+  }
+  .scale input:checked + label { background: var(--accent); color: var(--surface); border-color: var(--accent); }
+  .scale input:focus-visible + label { outline: 2px solid var(--accent); outline-offset: 2px; }
+  @media (max-width: 560px) { .rating { grid-template-columns: 1fr; } .scale { grid-row: auto; grid-column: 1; } }
+
+  .flags { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 10px; }
+  .flag { display: flex; gap: 10px; align-items: flex-start; padding: 10px 12px; border: 1px solid var(--border); border-radius: 8px; cursor: pointer; font-size: 13.5px; background: var(--bg); }
+  .flag input { margin-top: 3px; accent-color: var(--bad); }
+  .flag small { display: block; color: var(--muted); font-size: 12px; }
+  .flag.severe strong::after { content: "Deal-breaker"; margin-left: 6px; font-size: 10.5px; font-weight: 600; text-transform: uppercase; letter-spacing: .05em; color: var(--bad); }
+
+  .results { position: sticky; top: 16px; align-self: start; }
+  .score-ring { display: flex; align-items: center; gap: 18px; margin-bottom: 16px; }
+  .score-ring svg { flex: none; }
+  .score-num { font-size: 34px; font-weight: 700; line-height: 1; }
+  .score-label { color: var(--muted); font-size: 12px; }
+  .verdict { padding: 12px 14px; border-radius: 10px; font-weight: 600; margin-bottom: 18px; font-size: 14px; }
+  .verdict small { display: block; font-weight: 400; font-size: 12.5px; margin-top: 2px; opacity: .9; }
+  .v-good { background: color-mix(in srgb, var(--good) 14%, transparent); color: var(--good); }
+  .v-warn { background: color-mix(in srgb, var(--warn) 16%, transparent); color: var(--warn); }
+  .v-bad  { background: color-mix(in srgb, var(--bad) 14%, transparent); color: var(--bad); }
+  .v-none { background: var(--surface-2); color: var(--muted); }
+
+  .bar-row { margin-bottom: 12px; font-size: 13px; }
+  .bar-row .top { display: flex; justify-content: space-between; margin-bottom: 4px; }
+  .bar-row .top span:last-child { color: var(--muted); font-variant-numeric: tabular-nums; }
+  .bar { height: 7px; border-radius: 4px; background: var(--surface-2); overflow: hidden; }
+  .bar i { display: block; height: 100%; background: var(--accent); border-radius: 4px; transition: width .25s; }
+  .results h3 { font-size: 13px; text-transform: uppercase; letter-spacing: .06em; color: var(--muted); margin: 20px 0 10px; }
+  .results ul { margin: 0; padding-left: 18px; font-size: 13px; }
+  .results li { margin-bottom: 6px; }
+  .metric-chips { display: flex; flex-wrap: wrap; gap: 6px; }
+  .chip { font-size: 12px; padding: 4px 8px; border-radius: 6px; background: var(--surface-2); }
+  .chip b { font-weight: 600; }
+  .disclaimer { font-size: 11.5px; color: var(--muted); margin-top: 18px; border-top: 1px solid var(--border); padding-top: 12px; }
+
+  @media print {
+    header .head-actions, .no-print { display: none !important; }
+    .layout { grid-template-columns: 1fr 320px; }
+    .card { box-shadow: none; break-inside: avoid; }
+    body { background: #fff; }
+  }
+</style>
+</head>
+<body>
+<header>
+  <div class="wrap head-inner">
+    <div>
+      <p class="eyebrow">Investment screening · Prepared for Cove Hill Partners</p>
+      <h1>Pre-Diligence Assessment</h1>
+    </div>
+    <div class="head-actions">
+      <button id="resetBtn" type="button">Reset</button>
+      <button id="printBtn" type="button" class="primary">Print / Save PDF</button>
+    </div>
+  </div>
+</header>
+
+<main class="wrap layout">
+  <form id="form" autocomplete="off" onsubmit="return false">
+
+    <section class="card">
+      <h2><span class="step">1</span>Company snapshot</h2>
+      <p class="sub">Basic facts about the opportunity.</p>
+      <div class="grid">
+        <label class="field">Company name<input type="text" name="name" placeholder="e.g. Acme Software"></label>
+        <label class="field">Sector
+          <select name="sector">
+            <option value="">Select…</option>
+            <option value="software">Software</option>
+            <option value="consumer">Consumer</option>
+            <option value="techservices">Tech-enabled services</option>
+            <option value="other">Other</option>
+          </select>
+        </label>
+        <label class="field">Ownership / situation
+          <select name="ownership">
+            <option value="">Select…</option>
+            <option value="founder">Founder-owned, first institutional capital</option>
+            <option value="minority">Founder-owned, prior minority investors</option>
+            <option value="carveout">Corporate carve-out</option>
+            <option value="sponsor">Sponsor-to-sponsor</option>
+          </select>
+        </label>
+        <label class="field">Deal source
+          <select name="source">
+            <option value="">Select…</option>
+            <option value="proprietary">Proprietary / direct</option>
+            <option value="limited">Limited process</option>
+            <option value="broad">Broad auction</option>
+          </select>
+        </label>
+        <label class="field">Headquarters<input type="text" name="hq" placeholder="City, State"></label>
+        <label class="field">Deal lead<input type="text" name="lead" placeholder="Name"></label>
+      </div>
+      <label class="field" style="margin-top:14px">One-line business description
+        <textarea name="desc" placeholder="What the company does, who it serves, and how it makes money."></textarea>
+      </label>
+    </section>
+
+    <section class="card">
+      <h2><span class="step">2</span>Financial profile</h2>
+      <p class="sub">Latest twelve months unless noted. Leave blank if unknown; blank metrics are excluded from scoring.</p>
+      <div class="grid">
+        <label class="field">Revenue / ARR ($M)<input type="number" step="0.1" name="revenue" placeholder="45"></label>
+        <label class="field">YoY revenue growth (%)<input type="number" step="0.1" name="growth" placeholder="35"></label>
+        <label class="field">Gross margin (%)<input type="number" step="0.1" name="gm" placeholder="72"></label>
+        <label class="field">EBITDA margin (%)<span class="hint">Use negative for losses</span><input type="number" step="0.1" name="ebitda" placeholder="10"></label>
+        <label class="field">Net revenue retention (%)<span class="hint">Recurring-revenue businesses</span><input type="number" step="0.1" name="nrr" placeholder="112"></label>
+        <label class="field">Recurring revenue (% of total)<input type="number" step="1" name="recurring" placeholder="85"></label>
+        <label class="field">Top-10 customer concentration (%)<input type="number" step="1" name="conc" placeholder="18"></label>
+        <label class="field">Indicative equity check ($M)<input type="number" step="1" name="check" placeholder="150"></label>
+      </div>
+    </section>
+
+    <section class="card">
+      <h2><span class="step">3</span>Qualitative assessment</h2>
+      <p class="sub">Rate each area 1 (weak) to 5 (exceptional) based on what you know today.</p>
+      <div id="ratings"></div>
+    </section>
+
+    <section class="card">
+      <h2><span class="step">4</span>Red flags</h2>
+      <p class="sub">Check anything already known. Each flag reduces the score; deal-breakers cap the outcome at Pass.</p>
+      <div class="flags" id="flags"></div>
+    </section>
+
+    <section class="card">
+      <h2><span class="step">5</span>Investment thesis &amp; notes</h2>
+      <p class="sub">Why this could be a great investment, and what would have to be true.</p>
+      <div class="grid">
+        <label class="field">Thesis<textarea name="thesis" placeholder="Key reasons to invest…"></textarea></label>
+        <label class="field">Value creation plan<textarea name="vcp" placeholder="Pricing, go-to-market, M&amp;A, international, talent…"></textarea></label>
+      </div>
+    </section>
+  </form>
+
+  <aside class="results">
+    <div class="card">
+      <p class="eyebrow" id="resName">Untitled opportunity</p>
+      <div class="score-ring">
+        <svg width="84" height="84" viewBox="0 0 84 84" aria-hidden="true">
+          <circle cx="42" cy="42" r="36" fill="none" stroke="var(--surface-2)" stroke-width="8"/>
+          <circle id="ring" cx="42" cy="42" r="36" fill="none" stroke="var(--accent)" stroke-width="8"
+                  stroke-linecap="round" stroke-dasharray="226.2" stroke-dashoffset="226.2"
+                  transform="rotate(-90 42 42)" style="transition: stroke-dashoffset .3s, stroke .3s"/>
+        </svg>
+        <div>
+          <div class="score-num" id="scoreNum">–</div>
+          <div class="score-label">Overall score / 100</div>
+          <div class="score-label" id="completeness"></div>
+        </div>
+      </div>
+      <div class="verdict v-none" id="verdict">Not enough information<small>Fill in the sections to generate a recommendation.</small></div>
+
+      <div id="bars"></div>
+
+      <h3>Key metrics</h3>
+      <div class="metric-chips" id="chips"><span class="chip">No data yet</span></div>
+
+      <h3>Strengths</h3>
+      <ul id="strengths"><li style="color:var(--muted)">None identified yet</li></ul>
+
+      <h3>Questions for diligence</h3>
+      <ul id="questions"><li style="color:var(--muted)">None yet</li></ul>
+
+      <p class="disclaimer">Scoring thresholds and weights are illustrative screening assumptions, not firm policy. This is a first-pass screen to prioritize time and does not replace full diligence or investment committee review.</p>
+    </div>
+  </aside>
+</main>
+
+<script>
+const RATINGS = [
+  { key: "market",  q: "Market size & growth",         d: "Large, growing addressable market with secular tailwinds." },
+  { key: "moat",    q: "Competitive position",          d: "Differentiated product, defensibility, pricing power." },
+  { key: "mgmt",    q: "Management team",               d: "Quality, depth and alignment of leadership; appetite to partner." },
+  { key: "econ",    q: "Unit economics",                d: "CAC payback, LTV/CAC, cohort behavior, scalability of the model." },
+  { key: "levers",  q: "Value creation levers",         d: "Clear operational, go-to-market or M&A opportunities we can drive." },
+  { key: "exit",    q: "Exit pathways",                 d: "Credible strategic and financial buyers; IPO potential." },
+  { key: "val",     q: "Valuation & structure",         d: "Entry price relative to quality; ability to structure attractively." },
+];
+
+const FLAGS = [
+  { key: "accounting", t: "Accounting or quality-of-earnings concerns", s: "Irregular revenue recognition, unreliable financials", severe: true },
+  { key: "legal",      t: "Material litigation or regulatory exposure", s: "Pending suits, compliance investigations", severe: true },
+  { key: "keyperson",  t: "Key-person dependency",                      s: "Business relies heavily on one individual" },
+  { key: "churn",      t: "Rising churn or deteriorating cohorts",      s: "Logo or dollar retention trending down" },
+  { key: "competition",t: "Disruptive competitive threat",              s: "Well-funded entrant or platform risk" },
+  { key: "tech",       t: "Significant technical debt",                 s: "Re-platforming or major R&D catch-up needed" },
+  { key: "culture",    t: "Seller misalignment",                         s: "Unrealistic valuation or governance expectations" },
+  { key: "cyclical",   t: "High cyclicality / macro sensitivity",       s: "Revenue tied to discretionary or volatile spend" },
+];
+
+// Build qualitative ratings
+const ratingsEl = document.getElementById("ratings");
+ratingsEl.innerHTML = RATINGS.map(r => `
+  <div class="rating">
+    <div class="q">${r.q}</div>
+    <div class="d">${r.d}</div>
+    <div class="scale" role="radiogroup" aria-label="${r.q}">
+      ${[1,2,3,4,5].map(n => `
+        <input type="radio" id="${r.key}${n}" name="${r.key}" value="${n}">
+        <label for="${r.key}${n}">${n}</label>`).join("")}
+    </div>
+  </div>`).join("");
+
+// Build red flags
+document.getElementById("flags").innerHTML = FLAGS.map(f => `
+  <label class="flag ${f.severe ? "severe" : ""}">
+    <input type="checkbox" name="flag_${f.key}">
+    <span><strong>${f.t}</strong><small>${f.s}</small></span>
+  </label>`).join("");
+
+const form = document.getElementById("form");
+const STORAGE_KEY = "prediligence-draft-v1";
+
+function num(v) { if (v === "" || v == null) return null; const n = Number(v); return Number.isFinite(n) ? n : null; }
+function tier(v, cuts) { // cuts descending for 5,4,3,2 -> else 1
+  for (let i = 0; i < cuts.length; i++) if (v >= cuts[i]) return 5 - i;
+  return 1;
+}
+function avg(arr) { const a = arr.filter(x => x != null); return a.length ? a.reduce((s, x) => s + x, 0) / a.length : null; }
+function esc(s) { return String(s).replace(/[&<>"']/g, c => ({ "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;" }[c])); }
+
+function readForm() {
+  const fd = new FormData(form);
+  const data = {};
+  for (const [k, v] of fd.entries()) data[k] = v;
+  form.querySelectorAll("input[type=checkbox]").forEach(cb => data[cb.name] = cb.checked);
+  return data;
+}
+
+function compute(d) {
+  const growth = num(d.growth), gm = num(d.gm), ebitda = num(d.ebitda), nrr = num(d.nrr),
+        recurring = num(d.recurring), conc = num(d.conc), revenue = num(d.revenue);
+  const r40 = growth != null && ebitda != null ? growth + ebitda : null;
+
+  // Financial profile (each 1–5)
+  const fin = {
+    growth:    growth    != null ? tier(growth,    [40, 25, 15, 5])   : null,
+    gm:        gm        != null ? tier(gm,        [75, 60, 45, 30])  : null,
+    r40:       r40       != null ? tier(r40,       [50, 40, 30, 20])  : null,
+    nrr:       nrr       != null ? tier(nrr,       [120, 110, 100, 90]) : null,
+    recurring: recurring != null ? tier(recurring, [90, 75, 50, 25])  : null,
+    conc:      conc      != null ? tier(-conc,     [-10, -20, -35, -50]) : null,
+  };
+
+  // Strategic fit (each 1–5)
+  const sectorMap = { software: 5, consumer: 5, techservices: 4, other: 2 };
+  const ownMap = { founder: 5, minority: 4, carveout: 4, sponsor: 3 };
+  const srcMap = { proprietary: 5, limited: 4, broad: 2 };
+  const fit = {
+    sector: sectorMap[d.sector] ?? null,
+    owner:  ownMap[d.ownership] ?? null,
+    source: srcMap[d.source] ?? null,
+  };
+
+  const qual = {};
+  RATINGS.forEach(r => qual[r.key] = d[r.key] ? Number(d[r.key]) : null);
+
+  const cats = [
+    { name: "Financial profile",    weight: 0.35, v: avg(Object.values(fin)) },
+    { name: "Strategic fit",        weight: 0.15, v: avg(Object.values(fit)) },
+    { name: "Business quality",     weight: 0.30, v: avg([qual.market, qual.moat, qual.mgmt, qual.econ]) },
+    { name: "Value creation & exit",weight: 0.20, v: avg([qual.levers, qual.exit, qual.val]) },
+  ];
+
+  const answered = [...Object.values(fin), ...Object.values(fit), ...Object.values(qual)].filter(x => x != null).length;
+  const total = Object.keys(fin).length + Object.keys(fit).length + RATINGS.length;
+
+  const scored = cats.filter(c => c.v != null);
+  let score = null;
+  if (scored.length) {
+    const wsum = scored.reduce((s, c) => s + c.weight, 0);
+    score = scored.reduce((s, c) => s + c.weight * ((c.v - 1) / 4) * 100, 0) / wsum;
+  }
+
+  const flagged = FLAGS.filter(f => d["flag_" + f.key]);
+  const severe = flagged.some(f => f.severe);
+  if (score != null) score = Math.max(0, score - flagged.filter(f => !f.severe).length * 5);
+
+  return { cats, score, answered, total, flagged, severe, fin, fit, qual, metrics: { revenue, growth, gm, ebitda, nrr, r40, recurring, conc, check: num(d.check) } };
+}
+
+function render() {
+  const d = readForm();
+  const r = compute(d);
+
+  document.getElementById("resName").textContent = d.name?.trim() || "Untitled opportunity";
+  const pct = r.answered / r.total;
+  document.getElementById("completeness").textContent = `${r.answered} of ${r.total} scored inputs complete`;
+
+  const ring = document.getElementById("ring");
+  const scoreNum = document.getElementById("scoreNum");
+  const verdict = document.getElementById("verdict");
+
+  if (r.score == null || pct < 0.35) {
+    scoreNum.textContent = r.score == null ? "–" : Math.round(r.score);
+    ring.style.strokeDashoffset = r.score == null ? 226.2 : 226.2 * (1 - r.score / 100);
+    ring.style.stroke = "var(--muted)";
+    verdict.className = "verdict v-none";
+    verdict.innerHTML = "Not enough information<small>Complete at least a third of the scored inputs for a recommendation.</small>";
+  } else {
+    const s = Math.round(r.score);
+    scoreNum.textContent = s;
+    ring.style.strokeDashoffset = 226.2 * (1 - s / 100);
+    let cls, title, sub;
+    if (r.severe)      { cls = "v-bad";  title = "Pass (deal-breaker flagged)"; sub = "Resolve the flagged issue before spending further time."; }
+    else if (s >= 72)  { cls = "v-good"; title = "Advance to full diligence";   sub = "Strong fit. Prioritize and assemble the deal team."; }
+    else if (s >= 55)  { cls = "v-warn"; title = "Further review";               sub = "Promising, with open questions to answer first."; }
+    else               { cls = "v-bad";  title = "Pass";                         sub = "Below the screening bar on current information."; }
+    verdict.className = "verdict " + cls;
+    verdict.innerHTML = `${title}<small>${sub}</small>`;
+    ring.style.stroke = `var(--${cls.slice(2)})`;
+  }
+
+  document.getElementById("bars").innerHTML = r.cats.map(c => {
+    const p = c.v == null ? 0 : ((c.v - 1) / 4) * 100;
+    return `<div class="bar-row"><div class="top"><span>${c.name} <span style="color:var(--muted)">· ${Math.round(c.weight*100)}%</span></span><span>${c.v == null ? "–" : c.v.toFixed(1) + " / 5"}</span></div><div class="bar"><i style="width:${p}%"></i></div></div>`;
+  }).join("");
+
+  // Metric chips
+  const m = r.metrics, chips = [];
+  if (m.revenue != null) chips.push(["Revenue", `$${m.revenue}M`]);
+  if (m.growth != null) chips.push(["Growth", `${m.growth}%`]);
+  if (m.gm != null) chips.push(["Gross margin", `${m.gm}%`]);
+  if (m.ebitda != null) chips.push(["EBITDA", `${m.ebitda}%`]);
+  if (m.r40 != null) chips.push(["Rule of 40", `${m.r40.toFixed(0)}`]);
+  if (m.nrr != null) chips.push(["NRR", `${m.nrr}%`]);
+  if (m.check != null) chips.push(["Check", `$${m.check}M`]);
+  document.getElementById("chips").innerHTML = chips.length
+    ? chips.map(([k, v]) => `<span class="chip">${k} <b>${esc(v)}</b></span>`).join("")
+    : `<span class="chip">No data yet</span>`;
+
+  // Strengths & diligence questions
+  const strengths = [], qs = [];
+  const finLabels = { growth: "revenue growth", gm: "gross margin", r40: "Rule of 40", nrr: "net revenue retention", recurring: "recurring revenue mix", conc: "customer diversification" };
+  for (const [k, v] of Object.entries(r.fin)) {
+    if (v >= 5) strengths.push(`Top-tier ${finLabels[k]}`);
+  }
+  if (r.fin.growth != null && r.fin.growth <= 2) qs.push("What is driving slow growth, and is there a credible plan to re-accelerate?");
+  if (r.fin.gm != null && r.fin.gm <= 2) qs.push("What is the path to higher gross margins (mix, pricing, hosting/COGS)?");
+  if (r.fin.r40 != null && r.fin.r40 <= 2) qs.push("How does the company balance growth and profitability over the next 3 years?");
+  if (r.fin.nrr != null && r.fin.nrr <= 2) qs.push("Why is net retention below 100%? Break down churn vs. contraction by cohort.");
+  if (r.fin.conc != null && r.fin.conc <= 2) qs.push("How durable are relationships with the largest customers? Review contracts and renewal terms.");
+  if (r.fin.recurring != null && r.fin.recurring <= 2) qs.push("How predictable is non-recurring revenue, and can it be converted to recurring?");
+  if (r.fit.sector != null && r.fit.sector <= 2) qs.push("Does this sector fit the fund's focus areas and team expertise?");
+  if (r.fit.source === 2) qs.push("What is our differentiated angle to win a broad auction without overpaying?");
+
+  RATINGS.forEach(rt => {
+    const v = r.qual[rt.key];
+    if (v >= 5) strengths.push(rt.q);
+    if (v != null && v <= 2) qs.push({
+      market: "Validate TAM and market growth with independent research and customer calls.",
+      moat:   "What prevents competitors from replicating the product? Map competitive win/loss data.",
+      mgmt:   "Where are the leadership gaps, and is the team open to adding executives?",
+      econ:   "Rebuild unit economics from raw data: CAC payback, LTV/CAC, cohort curves.",
+      levers: "Which specific operating levers would we pull, and what is their EBITDA impact?",
+      exit:   "Who are the likely buyers in 4–6 years, and at what multiples have comparables traded?",
+      val:    "What entry valuation and structure would make returns work in the base case?",
+    }[rt.key]);
+  });
+  r.flagged.forEach(f => qs.push(`Red flag: ${f.t.toLowerCase()}. Scope a targeted diligence workstream.`));
+
+  document.getElementById("strengths").innerHTML = strengths.length
+    ? strengths.map(s => `<li>${esc(s)}</li>`).join("")
+    : `<li style="color:var(--muted)">None identified yet</li>`;
+  document.getElementById("questions").innerHTML = qs.length
+    ? qs.map(s => `<li>${esc(s)}</li>`).join("")
+    : `<li style="color:var(--muted)">None yet</li>`;
+
+  save(d);
+}
+
+function save(d) { try { localStorage.setItem(STORAGE_KEY, JSON.stringify(d)); } catch (e) {} }
+function load() {
+  let d; try { d = JSON.parse(localStorage.getItem(STORAGE_KEY) || "null"); } catch (e) { d = null; }
+  if (!d) return;
+  for (const [k, v] of Object.entries(d)) {
+    const els = form.querySelectorAll(`[name="${CSS.escape(k)}"]`);
+    els.forEach(el => {
+      if (el.type === "checkbox") el.checked = !!v;
+      else if (el.type === "radio") el.checked = el.value === String(v);
+      else el.value = v;
+    });
+  }
+}
+
+form.addEventListener("input", render);
+form.addEventListener("change", render);
+document.getElementById("printBtn").addEventListener("click", () => window.print());
+document.getElementById("resetBtn").addEventListener("click", () => {
+  if (!confirm("Clear all inputs?")) return;
+  form.reset();
+  try { localStorage.removeItem(STORAGE_KEY); } catch (e) {}
+  render();
+});
+
+load();
+render();
+</script>
+</body>
+</html>
